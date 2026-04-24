@@ -35,8 +35,39 @@ Schema:
 }${notes ? '\n\nContext: ' + notes : ''}`
 
   try {
-    const response = await fetch(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + apiKey,
+   let response, lastErr
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (attempt > 0) await new Promise(r => setTimeout(r, 2000 * attempt))
+    try {
+      response = await fetch(
+        'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + apiKey,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              parts: [
+                { inline_data: { mime_type: mimeType || 'image/jpeg', data: imageBase64 } },
+                { text: prompt }
+              ]
+            }],
+            generationConfig: { temperature: 0.1, maxOutputTokens: 2048 }
+          })
+        }
+      )
+      if (response.status === 503) {
+        lastErr = '503 busy, retrying...'
+        continue
+      }
+      if (!response.ok) {
+        const errText = await response.text()
+        throw new Error('Gemini API error ' + response.status + ': ' + errText.slice(0, 300))
+      }
+      break
+    } catch(e) { lastErr = e.message }
+  }
+  if (!response || !response.ok) throw new Error(lastErr || 'Gemini unavailable after 3 attempts')
+  const data = await response.json()
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
