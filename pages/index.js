@@ -9,9 +9,9 @@ const fmt = n => '$' + Number(n || 0).toFixed(2)
 
 function status(cur, par) {
   const v = pct(cur, par)
-  if (v <= 30) return { lbl:'Critical', color:'#e05252', bg:'rgba(224,82,82,.15)' }
-  if (v <= 60) return { lbl:'Low',      color:'#f5a623', bg:'rgba(245,166,35,.15)' }
-  return               { lbl:'OK',       color:'#3ecf8e', bg:'rgba(62,207,142,.15)' }
+  if (v <= 30) return { lbl:'Critical', color:'#ef5a5a', bg:'rgba(239,90,90,.12)' }
+  if (v <= 60) return { lbl:'Low',      color:'#f5a623', bg:'rgba(245,166,35,.12)' }
+  return               { lbl:'OK',       color:'#3ecf8e', bg:'rgba(62,207,142,.12)' }
 }
 
 // ── API helpers ─────────────────────────────────────────────────
@@ -28,44 +28,73 @@ const api = {
 }
 
 // ── Styles ──────────────────────────────────────────────────────
+const SIDEBAR_W = 224
 const C = {
-  side:   { width:200, background:'#161616', borderRight:'1px solid #242424', display:'flex', flexDirection:'column', position:'fixed', top:0, left:0, bottom:0, zIndex:100 },
-  main:   { marginLeft:200, minHeight:'100vh', display:'flex', flexDirection:'column' },
-  bar:    { background:'#161616', borderBottom:'1px solid #242424', padding:'0 24px', height:52, display:'flex', alignItems:'center', justifyContent:'space-between', position:'sticky', top:0, zIndex:50 },
-  page:   { padding:24 },
-  card:   { background:'#161616', border:'1px solid #242424', borderRadius:12, marginBottom:16 },
-  ch:     { padding:'13px 18px', borderBottom:'1px solid #242424', display:'flex', alignItems:'center', justifyContent:'space-between' },
-  input:  { background:'#0f0f0f', border:'1px solid #2a2a2a', borderRadius:8, color:'#f0ede8', fontFamily:'inherit', fontSize:13, padding:'8px 12px', width:'100%' },
-  numIn:  { background:'#0f0f0f', border:'1px solid #2a2a2a', borderRadius:8, color:'#f0ede8', fontFamily:'inherit', fontSize:13, padding:'7px 10px', width:80 },
-  sel:    { background:'#0f0f0f', border:'1px solid #2a2a2a', borderRadius:8, color:'#f0ede8', fontFamily:'inherit', fontSize:13, padding:'8px 10px', cursor:'pointer' },
-  tag:    (c,b) => ({ display:'inline-block', padding:'2px 9px', borderRadius:20, fontSize:11, fontWeight:600, color:c, background:b }),
-  alert:  (c,b,br) => ({ padding:'10px 14px', borderRadius:8, fontSize:12.5, marginBottom:10, color:c, background:b, border:`1px solid ${br}` }),
-  modal:  { position:'fixed', inset:0, background:'rgba(0,0,0,.8)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:24 },
+  side:   { width:SIDEBAR_W, background:'#0d0d0d', borderRight:'1px solid rgba(255,255,255,.06)', display:'flex', flexDirection:'column', position:'fixed', top:0, left:0, bottom:0, zIndex:100 },
+  main:   { marginLeft:SIDEBAR_W, minHeight:'100vh', display:'flex', flexDirection:'column' },
+  bar:    { background:'rgba(10,10,10,.85)', backdropFilter:'blur(12px)', WebkitBackdropFilter:'blur(12px)', borderBottom:'1px solid rgba(255,255,255,.06)', padding:'0 32px', height:60, display:'flex', alignItems:'center', justifyContent:'space-between', position:'sticky', top:0, zIndex:50 },
+  page:   { padding:'28px 32px', maxWidth:1280, margin:'0 auto', width:'100%' },
+  card:   { background:'#141414', border:'1px solid rgba(255,255,255,.06)', borderRadius:14, marginBottom:16, boxShadow:'0 1px 2px rgba(0,0,0,.4)' },
+  ch:     { padding:'14px 20px', borderBottom:'1px solid rgba(255,255,255,.06)', display:'flex', alignItems:'center', justifyContent:'space-between' },
+  input:  { background:'#0d0d0d', border:'1px solid rgba(255,255,255,.08)', borderRadius:10, color:'#f4f2ee', fontFamily:'inherit', fontSize:13, padding:'9px 12px', width:'100%' },
+  numIn:  { background:'#0d0d0d', border:'1px solid rgba(255,255,255,.08)', borderRadius:10, color:'#f4f2ee', fontFamily:'inherit', fontSize:13, padding:'8px 10px', width:80 },
+  sel:    { background:'#0d0d0d', border:'1px solid rgba(255,255,255,.08)', borderRadius:10, color:'#f4f2ee', fontFamily:'inherit', fontSize:13, padding:'9px 10px', cursor:'pointer' },
+  tag:    (c,b) => ({ display:'inline-flex', alignItems:'center', padding:'3px 10px', borderRadius:999, fontSize:11, fontWeight:600, color:c, background:b, letterSpacing:'-.005em' }),
+  alert:  (c,b,br) => ({ padding:'11px 14px', borderRadius:10, fontSize:12.5, marginBottom:10, color:c, background:b, border:`1px solid ${br}`, display:'flex', alignItems:'center', gap:8 }),
+  modal:  { position:'fixed', inset:0, background:'rgba(0,0,0,.72)', backdropFilter:'blur(4px)', WebkitBackdropFilter:'blur(4px)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:24, animation:'fadeIn .18s ease-out' },
+  stat:   { background:'#141414', border:'1px solid rgba(255,255,255,.06)', borderRadius:12, padding:'18px 20px' },
+  h1:     { fontFamily:"'Instrument Serif', Georgia, serif", fontSize:30, letterSpacing:'-.02em', marginBottom:4 },
+  sub:    { fontSize:13, color:'#8a8a8a', marginBottom:24, letterSpacing:'-.005em' },
 }
 
-function Btn({ label, onClick, primary, sm, disabled, full, color }) {
+function Btn({ label, onClick, primary, sm, disabled, full, color, ghost }) {
+  const isPrimary = primary && !color
+  const bg = disabled ? 'rgba(255,255,255,.04)'
+    : color ? color
+    : isPrimary ? '#3ecf8e'
+    : ghost ? 'transparent'
+    : 'rgba(255,255,255,.04)'
+  const fg = disabled ? '#555'
+    : isPrimary ? '#0a0a0a'
+    : color ? '#fff'
+    : '#f4f2ee'
   return (
-    <button onClick={onClick} disabled={disabled} style={{
-      display:'inline-flex', alignItems:'center', gap:5,
-      padding: sm ? '5px 12px' : '8px 16px',
-      borderRadius:8, fontSize: sm ? 12 : 13, fontWeight:500,
-      cursor: disabled ? 'not-allowed' : 'pointer', fontFamily:'inherit',
-      border: primary ? 'none' : '1px solid #2a2a2a',
-      background: disabled ? '#222' : color || (primary ? '#3ecf8e' : 'transparent'),
-      color: disabled ? '#555' : primary ? '#000' : '#f0ede8',
-      opacity: disabled ? .6 : 1, transition:'opacity .15s',
-      width: full ? '100%' : undefined, justifyContent: full ? 'center' : undefined,
-    }}>{label}</button>
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      onMouseEnter={e => { if (!disabled) e.currentTarget.style.filter = 'brightness(1.12)' }}
+      onMouseLeave={e => { e.currentTarget.style.filter = 'none' }}
+      style={{
+        display:'inline-flex', alignItems:'center', justifyContent: full ? 'center' : 'flex-start', gap:6,
+        padding: sm ? '6px 12px' : '9px 16px',
+        borderRadius:10, fontSize: sm ? 12 : 13, fontWeight:500,
+        cursor: disabled ? 'not-allowed' : 'pointer', fontFamily:'inherit',
+        border: isPrimary || color ? '1px solid transparent' : '1px solid rgba(255,255,255,.08)',
+        background: bg, color: fg,
+        opacity: disabled ? .55 : 1, transition:'filter .15s ease, transform .05s ease',
+        width: full ? '100%' : undefined, letterSpacing:'-.005em',
+      }}>
+      {label}
+    </button>
   )
 }
 
 function Field({ label, warn, children }) {
   return (
     <div>
-      <div style={{fontSize:10,textTransform:'uppercase',letterSpacing:'.7px',color: warn ? '#f5a623' : '#666',marginBottom:5,fontWeight:500}}>
-        {label} {warn && '⚠'}
+      <div style={{fontSize:10.5,textTransform:'uppercase',letterSpacing:'.08em',color: warn ? '#f5a623' : '#7a7a7a',marginBottom:6,fontWeight:600}}>
+        {label}{warn && <span style={{ marginLeft:4 }}>•</span>}
       </div>
       {children}
+    </div>
+  )
+}
+
+function PageHeader({ title, sub }) {
+  return (
+    <div style={{ marginBottom:24 }}>
+      <div style={C.h1}>{title}</div>
+      {sub && <div style={C.sub}>{sub}</div>}
     </div>
   )
 }
@@ -261,36 +290,46 @@ export default function App() {
 
       {/* ── Sidebar ── */}
       <aside style={C.side}>
-        <div style={{ padding:'20px 16px', borderBottom:'1px solid #242424' }}>
-          <div style={{ fontFamily:'serif', fontSize:20, fontWeight:700 }}>
+        <div style={{ padding:'24px 20px 20px', borderBottom:'1px solid rgba(255,255,255,.06)' }}>
+          <div className="serif" style={{ fontSize:24, fontWeight:600, letterSpacing:'-.02em' }}>
             Mise<span style={{ color:'#3ecf8e', fontStyle:'italic' }}>AI</span>
           </div>
-          <div style={{ fontSize:10, color:'#555', marginTop:2 }}>Restaurant Inventory</div>
+          <div style={{ fontSize:10.5, color:'#5a5a5a', marginTop:3, letterSpacing:'.06em', textTransform:'uppercase', fontWeight:500 }}>Restaurant Inventory</div>
         </div>
-        <nav style={{ padding:8, flex:1 }}>
+        <nav style={{ padding:12, flex:1 }}>
+          <div style={{ fontSize:10, color:'#4a4a4a', textTransform:'uppercase', letterSpacing:'.08em', fontWeight:600, padding:'4px 10px 8px' }}>Workspace</div>
           {[
-            { id:'vision',    icon:'📷', label:'Vision Scan' },
-            { id:'inventory', icon:'📊', label:'Inventory' },
-            { id:'suppliers', icon:'🏪', label:'Suppliers' },
-            { id:'orders',    icon:'📦', label:'Orders' },
-          ].map(t => (
-            <button key={t.id} onClick={() => setTab(t.id)} style={{
-              display:'flex', alignItems:'center', gap:8, width:'100%',
-              padding:'9px 10px', borderRadius:8, border:'none', fontFamily:'inherit',
-              background: tab===t.id ? 'rgba(62,207,142,.1)' : 'none',
-              color: tab===t.id ? '#3ecf8e' : '#888', fontSize:13,
-              cursor:'pointer', fontWeight: tab===t.id ? 600 : 400,
-              marginBottom:2, textAlign:'left',
-            }}>
-              {t.icon} {t.label}
-              {t.id==='orders' && criticalCount > 0 && (
-                <span style={{ marginLeft:'auto', background:'#e05252', color:'#fff', fontSize:10, fontWeight:700, padding:'1px 6px', borderRadius:10 }}>{criticalCount}</span>
-              )}
-            </button>
-          ))}
+            { id:'vision',    icon:'◎', label:'Vision Scan' },
+            { id:'inventory', icon:'◫', label:'Inventory' },
+            { id:'suppliers', icon:'◇', label:'Suppliers' },
+            { id:'orders',    icon:'◰', label:'Orders' },
+          ].map(t => {
+            const active = tab === t.id
+            return (
+              <button key={t.id} onClick={() => setTab(t.id)}
+                onMouseEnter={e => { if (!active) e.currentTarget.style.background = 'rgba(255,255,255,.03)' }}
+                onMouseLeave={e => { if (!active) e.currentTarget.style.background = 'transparent' }}
+                style={{
+                  display:'flex', alignItems:'center', gap:10, width:'100%',
+                  padding:'9px 10px', borderRadius:8, border:'none', fontFamily:'inherit',
+                  background: active ? 'rgba(62,207,142,.10)' : 'transparent',
+                  color: active ? '#3ecf8e' : '#9a9a9a', fontSize:13,
+                  cursor:'pointer', fontWeight: active ? 600 : 500,
+                  marginBottom:2, textAlign:'left', letterSpacing:'-.005em',
+                  transition:'background .12s ease, color .12s ease',
+              }}>
+                <span style={{ width:16, textAlign:'center', fontSize:14, opacity: active ? 1 : .65 }}>{t.icon}</span>
+                <span>{t.label}</span>
+                {t.id==='orders' && criticalCount > 0 && (
+                  <span style={{ marginLeft:'auto', background:'#ef5a5a', color:'#fff', fontSize:10, fontWeight:700, padding:'1px 7px', borderRadius:999, lineHeight:1.5 }}>{criticalCount}</span>
+                )}
+              </button>
+            )
+          })}
         </nav>
-        <div style={{ padding:'12px 16px', borderTop:'1px solid #242424', fontSize:10, color:'#444' }}>
-          {loading ? '⏳ Loading...' : `${inventory.length} items · ${suppliers.length} suppliers`}
+        <div style={{ padding:'14px 20px', borderTop:'1px solid rgba(255,255,255,.06)', fontSize:11, color:'#5a5a5a', display:'flex', alignItems:'center', gap:6 }}>
+          <span style={{ width:6, height:6, borderRadius:'50%', background: loading ? '#f5a623' : '#3ecf8e' }} className={loading ? 'pulse' : ''} />
+          {loading ? 'Loading' : `${inventory.length} items · ${suppliers.length} suppliers`}
         </div>
       </aside>
 
@@ -298,16 +337,18 @@ export default function App() {
       <div style={C.main}>
         <div style={C.bar}>
           <div>
-            <div style={{ fontSize:14, fontWeight:600 }}>
+            <div style={{ fontSize:14, fontWeight:600, letterSpacing:'-.01em' }}>
               {{ vision:'Vision Scan', inventory:'Inventory', suppliers:'Suppliers', orders:'Supplier Orders' }[tab]}
             </div>
-            <div style={{ fontSize:11, color:'#666' }}>
+            <div style={{ fontSize:11, color:'#666', marginTop:1 }}>
               {new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' })}
             </div>
           </div>
-          <div style={{ display:'flex', gap:8, alignItems:'center' }}>
-            {saving && <span style={{ fontSize:12, color:'#f5a623' }}>💾 Saving...</span>}
-            <span style={{ fontSize:11, color:'#3ecf8e', background:'rgba(62,207,142,.1)', padding:'3px 10px', borderRadius:20 }}>● Airtable Sync</span>
+          <div style={{ display:'flex', gap:10, alignItems:'center' }}>
+            {saving && <span style={{ fontSize:12, color:'#f5a623', display:'inline-flex', alignItems:'center', gap:6 }}><span style={{ width:6, height:6, borderRadius:'50%', background:'#f5a623' }} className="pulse" /> Saving</span>}
+            <span style={{ fontSize:11, color:'#3ecf8e', background:'rgba(62,207,142,.10)', padding:'4px 11px', borderRadius:999, display:'inline-flex', alignItems:'center', gap:6, fontWeight:500 }}>
+              <span style={{ width:6, height:6, borderRadius:'50%', background:'#3ecf8e' }} /> Airtable Sync
+            </span>
           </div>
         </div>
 
@@ -315,13 +356,10 @@ export default function App() {
 
           {/* ══════════ VISION ══════════ */}
           {tab === 'vision' && (
-            <div>
-              <div style={{ fontFamily:'serif', fontSize:22, marginBottom:3 }}>Vision Scan</div>
-              <div style={{ fontSize:12, color:'#888', marginBottom:20 }}>
-                사진을 찍으면 AI가 품목을 감지하고 Airtable에 자동 저장합니다
-              </div>
+            <div className="fade-in">
+              <PageHeader title="Vision Scan" sub="사진을 찍으면 AI가 품목을 감지하고 Airtable에 자동 저장합니다" />
 
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, alignItems:'start' }}>
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:20, alignItems:'start' }}>
                 {/* Left */}
                 <div>
                   <div style={{ display:'flex', gap:8, marginBottom:14 }}>
@@ -345,14 +383,16 @@ export default function App() {
 
                   {!camMode && !imgSrc && (
                     <div onClick={() => fileRef.current.click()}
-                      onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor='#3ecf8e' }}
-                      onDragLeave={e => e.currentTarget.style.borderColor='#2a2a2a'}
-                      onDrop={e => { e.preventDefault(); e.currentTarget.style.borderColor='#2a2a2a'; loadFile(e.dataTransfer.files[0]) }}
-                      style={{ border:'2px dashed #2a2a2a', borderRadius:12, padding:'36px 24px', textAlign:'center', cursor:'pointer', transition:'border-color .2s', marginBottom:12 }}>
+                      onDragOver={e => { e.preventDefault(); e.currentTarget.style.borderColor='#3ecf8e'; e.currentTarget.style.background='rgba(62,207,142,.04)' }}
+                      onDragLeave={e => { e.currentTarget.style.borderColor='rgba(255,255,255,.10)'; e.currentTarget.style.background='transparent' }}
+                      onDrop={e => { e.preventDefault(); e.currentTarget.style.borderColor='rgba(255,255,255,.10)'; e.currentTarget.style.background='transparent'; loadFile(e.dataTransfer.files[0]) }}
+                      onMouseEnter={e => e.currentTarget.style.borderColor='rgba(255,255,255,.18)'}
+                      onMouseLeave={e => e.currentTarget.style.borderColor='rgba(255,255,255,.10)'}
+                      style={{ border:'1.5px dashed rgba(255,255,255,.10)', borderRadius:14, padding:'44px 24px', textAlign:'center', cursor:'pointer', transition:'border-color .2s, background .2s', marginBottom:12, background:'transparent' }}>
                       <input ref={fileRef} type="file" accept="image/*" style={{ display:'none' }} onChange={e => loadFile(e.target.files[0])} />
-                      <div style={{ fontSize:36, marginBottom:10 }}>📁</div>
+                      <div style={{ fontSize:32, marginBottom:12, opacity:.8 }}>📁</div>
                       <div style={{ fontSize:14, fontWeight:600, marginBottom:4 }}>Click or drag a photo</div>
-                      <div style={{ fontSize:12, color:'#666' }}>Walk-in · Freezer · Dry storage · Prep area</div>
+                      <div style={{ fontSize:12, color:'#7a7a7a' }}>Walk-in · Freezer · Dry storage · Prep area</div>
                     </div>
                   )}
 
@@ -390,17 +430,17 @@ export default function App() {
                 <div>
                   {!detected && !analyzing && (
                     <div style={C.card}>
-                      <div style={{ padding:20, textAlign:'center' }}>
-                        <div style={{ fontSize:40, marginBottom:12 }}>🤖</div>
-                        <div style={{ fontSize:14, fontWeight:600, marginBottom:4 }}>AI Vision Ready</div>
-                        <div style={{ fontSize:12, color:'#666', lineHeight:1.6 }}>
+                      <div style={{ padding:'32px 24px', textAlign:'center' }}>
+                        <div style={{ width:48, height:48, margin:'0 auto 16px', borderRadius:14, background:'rgba(62,207,142,.10)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:22 }}>🤖</div>
+                        <div style={{ fontSize:15, fontWeight:600, marginBottom:6, letterSpacing:'-.01em' }}>AI Vision Ready</div>
+                        <div style={{ fontSize:12.5, color:'#8a8a8a', lineHeight:1.65 }}>
                           사진을 찍으면 AI가 자동으로<br/>모든 식재료를 감지합니다
                         </div>
-                        <div style={{ marginTop:16, fontSize:12, color:'#555', textAlign:'left' }}>
-                          ✅ 품목 자동 감지<br/>
-                          ✅ 수량 추정<br/>
-                          ✅ 상태 평가<br/>
-                          ✅ Airtable 자동 저장
+                        <div style={{ marginTop:20, padding:'14px 16px', borderRadius:10, background:'rgba(255,255,255,.02)', border:'1px solid rgba(255,255,255,.04)', fontSize:12, color:'#8a8a8a', textAlign:'left', display:'grid', gap:6 }}>
+                          <div>· 품목 자동 감지</div>
+                          <div>· 수량 추정</div>
+                          <div>· 상태 평가</div>
+                          <div>· Airtable 자동 저장</div>
                         </div>
                       </div>
                     </div>
@@ -408,22 +448,22 @@ export default function App() {
 
                   {analyzing && (
                     <div style={C.card}>
-                      <div style={{ padding:'40px 20px', textAlign:'center' }}>
-                        <div style={{ fontSize:40, marginBottom:12 }}>🧠</div>
-                        <div style={{ fontWeight:600, marginBottom:4 }}>Claude AI가 분석 중...</div>
-                        <div style={{ fontSize:12, color:'#666' }}>모든 식재료를 감지하고 있습니다</div>
+                      <div style={{ padding:'48px 24px', textAlign:'center' }}>
+                        <div style={{ width:48, height:48, margin:'0 auto 16px', borderRadius:14, background:'rgba(62,207,142,.10)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:22 }} className="pulse">🧠</div>
+                        <div style={{ fontWeight:600, marginBottom:6, letterSpacing:'-.01em' }}>AI가 분석 중</div>
+                        <div style={{ fontSize:12.5, color:'#8a8a8a' }}>모든 식재료를 감지하고 있습니다</div>
                       </div>
                     </div>
                   )}
 
                   {detected && (
-                    <div style={C.card}>
+                    <div style={C.card} className="fade-in">
                       <div style={C.ch}>
                         <div>
-                          <div style={{ fontSize:13.5, fontWeight:600 }}>🎯 {detected.items?.length || 0}개 품목 감지</div>
-                          <div style={{ fontSize:11, color:'#666', marginTop:1 }}>{detected.scene_description}</div>
+                          <div style={{ fontSize:14, fontWeight:600, letterSpacing:'-.01em' }}>{detected.items?.length || 0}개 품목 감지</div>
+                          <div style={{ fontSize:11.5, color:'#7a7a7a', marginTop:2 }}>{detected.scene_description}</div>
                         </div>
-                        <span style={C.tag('#3ecf8e','rgba(62,207,142,.15)')}>AI</span>
+                        <span style={C.tag('#3ecf8e','rgba(62,207,142,.14)')}>AI</span>
                       </div>
 
                       {detected.alerts?.length > 0 && (
@@ -432,42 +472,42 @@ export default function App() {
                         </div>
                       )}
 
-                      <div style={{ padding:'0 18px' }}>
-                        <div style={{ fontSize:11, color:'#555', padding:'8px 0 6px', borderBottom:'1px solid #242424', marginBottom:4 }}>
-                          추가할 품목을 선택하세요
+                      <div style={{ padding:'0 20px' }}>
+                        <div style={{ fontSize:10.5, color:'#6a6a6a', padding:'12px 0 8px', borderBottom:'1px solid rgba(255,255,255,.04)', marginBottom:4, textTransform:'uppercase', letterSpacing:'.08em', fontWeight:600 }}>
+                          추가할 품목 선택
                         </div>
                         {detected.items?.map((item, i) => {
                           const exists = inventory.find(x => x.name.toLowerCase() === item.name.toLowerCase())
                           return (
-                            <div key={i} style={{ display:'flex', alignItems:'center', gap:10, padding:'9px 0', borderBottom:'1px solid #1a1a1a' }}>
+                            <div key={i} style={{ display:'flex', alignItems:'center', gap:12, padding:'11px 0', borderBottom:'1px solid rgba(255,255,255,.04)' }}>
                               <input type="checkbox" checked={item._selected}
                                 onChange={e => setDetected(d => ({ ...d, items: d.items.map((x,j) => j===i ? { ...x, _selected:e.target.checked } : x) }))}
                                 style={{ accentColor:'#3ecf8e', width:16, height:16, cursor:'pointer' }} />
                               <span style={{ fontSize:20, width:28, textAlign:'center' }}>{item.icon}</span>
-                              <div style={{ flex:1 }}>
-                                <div style={{ fontSize:13, fontWeight:500 }}>
+                              <div style={{ flex:1, minWidth:0 }}>
+                                <div style={{ fontSize:13, fontWeight:500, display:'flex', alignItems:'center', gap:6, letterSpacing:'-.005em' }}>
                                   {item.name}
-                                  {exists && <span style={C.tag('#3ecf8e','rgba(62,207,142,.1)', { marginLeft:6 })}> ↻ update</span>}
+                                  {exists && <span style={C.tag('#3ecf8e','rgba(62,207,142,.10)')}>update</span>}
                                 </div>
-                                <div style={{ fontSize:11, color:'#666', marginTop:1 }}>
+                                <div style={{ fontSize:11.5, color:'#7a7a7a', marginTop:2 }}>
                                   ~{item.estimated_quantity} {item.unit} · {item.condition}
                                   {item.notes ? ` — ${item.notes}` : ''}
                                 </div>
                               </div>
                               <span style={C.tag(
-                                item.stock_level==='critical'?'#e05252':item.stock_level==='low'?'#f5a623':'#3ecf8e',
-                                item.stock_level==='critical'?'rgba(224,82,82,.15)':item.stock_level==='low'?'rgba(245,166,35,.15)':'rgba(62,207,142,.15)'
+                                item.stock_level==='critical'?'#ef5a5a':item.stock_level==='low'?'#f5a623':'#3ecf8e',
+                                item.stock_level==='critical'?'rgba(239,90,90,.12)':item.stock_level==='low'?'rgba(245,166,35,.12)':'rgba(62,207,142,.12)'
                               )}>{item.stock_level}</span>
                             </div>
                           )
                         })}
                       </div>
 
-                      <div style={{ padding:18, display:'flex', gap:8 }}>
-                        <Btn label={saving ? '💾 Saving...' : `✅ ${detected.items?.filter(i=>i._selected).length || 0}개 Airtable에 저장`}
+                      <div style={{ padding:20, display:'flex', gap:8 }}>
+                        <Btn label={saving ? 'Saving…' : `Save ${detected.items?.filter(i=>i._selected).length || 0} to Airtable`}
                           onClick={addDetectedToInventory} primary
                           disabled={saving || !detected.items?.some(i=>i._selected)} />
-                        <Btn label="✕" onClick={() => setDetected(null)} sm />
+                        <Btn label="Cancel" onClick={() => setDetected(null)} sm />
                       </div>
                     </div>
                   )}
@@ -478,58 +518,66 @@ export default function App() {
 
           {/* ══════════ INVENTORY ══════════ */}
           {tab === 'inventory' && (
-            <div>
-              <div style={{ fontFamily:'serif', fontSize:22, marginBottom:3 }}>Inventory</div>
-              <div style={{ fontSize:12, color:'#888', marginBottom:18 }}>수량, Par Level, Supplier를 설정하고 자동 발주를 활성화하세요</div>
+            <div className="fade-in">
+              <PageHeader title="Inventory" sub="수량, Par Level, Supplier를 설정하고 자동 발주를 활성화하세요" />
 
               {/* Stats */}
-              <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:20 }}>
+              <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:14, marginBottom:22 }}>
                 {[
                   { lbl:'Total Items',  val:inventory.length,  color:null },
-                  { lbl:'Critical',     val:criticalCount,     color:'#e05252' },
+                  { lbl:'Critical',     val:criticalCount,     color:'#ef5a5a' },
                   { lbl:'No Par Set',   val:noPar,             color: noPar>0?'#f5a623':null },
                   { lbl:'No Supplier',  val:noSup,             color: noSup>0?'#f5a623':null },
                 ].map(s => (
-                  <div key={s.lbl} style={{ background:'#161616', border:'1px solid #242424', borderRadius:10, padding:16 }}>
-                    <div style={{ fontSize:10, textTransform:'uppercase', letterSpacing:'.8px', color:'#666', marginBottom:6 }}>{s.lbl}</div>
-                    <div style={{ fontFamily:'serif', fontSize:28, color: s.color || '#f0ede8' }}>{s.val}</div>
+                  <div key={s.lbl} style={C.stat}>
+                    <div style={{ fontSize:10.5, textTransform:'uppercase', letterSpacing:'.08em', color:'#7a7a7a', marginBottom:8, fontWeight:600 }}>{s.lbl}</div>
+                    <div className="serif" style={{ fontSize:32, color: s.color || '#f4f2ee', fontWeight:500 }}>{s.val}</div>
                   </div>
                 ))}
               </div>
 
-              {noPar > 0 && <div style={C.alert('#f5a623','rgba(245,166,35,.08)','rgba(245,166,35,.25)')}>
-                ⚠️ <strong>{noPar}개 품목</strong>에 Par Level 미설정 — 각 품목의 Edit 버튼을 눌러 설정하세요
+              {noPar > 0 && <div style={C.alert('#f5a623','rgba(245,166,35,.08)','rgba(245,166,35,.20)')}>
+                <span><strong>{noPar}개 품목</strong>에 Par Level 미설정 — 각 품목의 Edit 버튼을 눌러 설정하세요</span>
               </div>}
-              {noSup > 0 && <div style={C.alert('#5b8dee','rgba(91,141,238,.08)','rgba(91,141,238,.25)')}>
-                ℹ️ <strong>{noSup}개 품목</strong>에 Supplier 미설정 — 발주서 생성을 위해 지정해 주세요
+              {noSup > 0 && <div style={C.alert('#6ea8fe','rgba(110,168,254,.08)','rgba(110,168,254,.22)')}>
+                <span><strong>{noSup}개 품목</strong>에 Supplier 미설정 — 발주서 생성을 위해 지정해 주세요</span>
               </div>}
 
               {loading ? (
-                <div style={{ textAlign:'center', padding:40, color:'#666' }}>⏳ Loading from Airtable...</div>
+                <div style={{ textAlign:'center', padding:48, color:'#7a7a7a', fontSize:13 }}>
+                  <span className="pulse">Loading from Airtable…</span>
+                </div>
               ) : inventory.length === 0 ? (
                 <div style={C.card}>
-                  <div style={{ padding:'48px 20px', textAlign:'center' }}>
-                    <div style={{ fontSize:40, marginBottom:12 }}>📷</div>
-                    <div style={{ fontSize:16, fontWeight:600, marginBottom:8 }}>Inventory가 비어있습니다</div>
-                    <div style={{ fontSize:13, color:'#666', marginBottom:20 }}>Vision Scan에서 사진을 찍어 품목을 추가하세요</div>
-                    <Btn label="📷 Vision Scan으로 이동" onClick={() => setTab('vision')} primary />
+                  <div style={{ padding:'56px 24px', textAlign:'center' }}>
+                    <div style={{ width:52, height:52, margin:'0 auto 16px', borderRadius:14, background:'rgba(62,207,142,.10)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:24 }}>📷</div>
+                    <div style={{ fontSize:16, fontWeight:600, marginBottom:8, letterSpacing:'-.01em' }}>Inventory가 비어있습니다</div>
+                    <div style={{ fontSize:13, color:'#8a8a8a', marginBottom:22 }}>Vision Scan에서 사진을 찍어 품목을 추가하세요</div>
+                    <Btn label="Go to Vision Scan" onClick={() => setTab('vision')} primary />
                   </div>
                 </div>
               ) : (
                 <div style={C.card}>
-                  <div style={C.ch}>
-                    <div style={{ fontSize:13.5, fontWeight:600 }}>재고 목록 ({filteredInv.length})</div>
-                    <div style={{ display:'flex', gap:8, alignItems:'center', flexWrap:'wrap' }}>
-                      <input type="text" placeholder="🔍 Search..." value={search}
+                  <div style={{ ...C.ch, flexDirection:'column', alignItems:'stretch', gap:12 }}>
+                    <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:12 }}>
+                      <div style={{ fontSize:14, fontWeight:600, letterSpacing:'-.01em' }}>재고 목록 <span style={{ color:'#666', fontWeight:400 }}>({filteredInv.length})</span></div>
+                      <input type="text" placeholder="Search items..." value={search}
                         onChange={e => setSearch(e.target.value)}
-                        style={{ ...C.input, width:140, padding:'5px 10px', fontSize:12 }} />
-                      {['All',...CATEGORIES].map(c => (
-                        <button key={c} onClick={() => setFilter(c)} style={{
-                          padding:'4px 10px', borderRadius:20, fontSize:11, cursor:'pointer', fontFamily:'inherit', border:'none',
-                          background: invFilter===c ? '#3ecf8e' : 'rgba(255,255,255,.05)',
-                          color: invFilter===c ? '#000' : '#888',
-                        }}>{c}</button>
-                      ))}
+                        style={{ ...C.input, width:200, padding:'7px 12px', fontSize:12.5 }} />
+                    </div>
+                    <div style={{ display:'flex', gap:6, alignItems:'center', flexWrap:'wrap' }}>
+                      {['All',...CATEGORIES].map(c => {
+                        const active = invFilter === c
+                        return (
+                          <button key={c} onClick={() => setFilter(c)} style={{
+                            padding:'5px 12px', borderRadius:999, fontSize:11.5, cursor:'pointer', fontFamily:'inherit', fontWeight:500,
+                            border: active ? '1px solid transparent' : '1px solid rgba(255,255,255,.06)',
+                            background: active ? '#3ecf8e' : 'transparent',
+                            color: active ? '#0a0a0a' : '#9a9a9a',
+                            transition:'background .12s, color .12s',
+                          }}>{c}</button>
+                        )
+                      })}
                     </div>
                   </div>
 
@@ -537,30 +585,33 @@ export default function App() {
                     const s = status(item.cur, item.par)
                     const v = item.par > 0 ? Math.min(pct(item.cur, item.par), 100) : null
                     return (
-                      <div key={item.id} style={{ borderBottom:'1px solid #1e1e1e', padding:'12px 18px', display:'flex', alignItems:'center', gap:12 }}>
-                        <span style={{ fontSize:24, width:32, textAlign:'center' }}>{item.icon}</span>
+                      <div key={item.id}
+                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,.015)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                        style={{ borderBottom:'1px solid rgba(255,255,255,.04)', padding:'14px 20px', display:'flex', alignItems:'center', gap:14, transition:'background .12s' }}>
+                        <span style={{ fontSize:24, width:36, textAlign:'center' }}>{item.icon}</span>
                         <div style={{ flex:1, minWidth:0 }}>
-                          <div style={{ fontWeight:600, fontSize:14 }}>{item.name}</div>
-                          <div style={{ fontSize:11, color:'#666', marginTop:2 }}>
+                          <div style={{ fontWeight:600, fontSize:14, letterSpacing:'-.005em' }}>{item.name}</div>
+                          <div style={{ fontSize:11.5, color:'#7a7a7a', marginTop:2 }}>
                             {item.category} · {item.cur} {item.unit}
                             {item.sup && ` · ${item.sup}`}
                           </div>
                           {v !== null && (
-                            <div style={{ marginTop:5, display:'flex', alignItems:'center', gap:8 }}>
-                              <div style={{ flex:1, height:4, background:'#2a2a2a', borderRadius:2, overflow:'hidden' }}>
-                                <div style={{ height:'100%', width:v+'%', background:s.color, borderRadius:2, transition:'width .4s' }} />
+                            <div style={{ marginTop:7, display:'flex', alignItems:'center', gap:10, maxWidth:360 }}>
+                              <div style={{ flex:1, height:5, background:'rgba(255,255,255,.05)', borderRadius:999, overflow:'hidden' }}>
+                                <div style={{ height:'100%', width:v+'%', background:s.color, borderRadius:999, transition:'width .4s' }} />
                               </div>
-                              <span style={{ fontSize:10, color:s.color, fontWeight:600, whiteSpace:'nowrap' }}>{v}% of par</span>
+                              <span style={{ fontSize:10.5, color:s.color, fontWeight:600, whiteSpace:'nowrap', minWidth:60, textAlign:'right' }}>{v}% of par</span>
                             </div>
                           )}
                         </div>
                         <div style={{ display:'flex', alignItems:'center', gap:8 }}>
                           {item.par > 0
                             ? <span style={C.tag(s.color, s.bg)}>{s.lbl}</span>
-                            : <span style={C.tag('#666','rgba(255,255,255,.05)')}>No par</span>}
-                          {!item.sup && <span style={C.tag('#f5a623','rgba(245,166,35,.1)')}>No supplier</span>}
-                          <Btn label="✏️ Edit" onClick={() => setEditModal({ ...item })} sm />
-                          <Btn label="🗑" onClick={() => deleteItem(item.id)} sm />
+                            : <span style={C.tag('#7a7a7a','rgba(255,255,255,.04)')}>No par</span>}
+                          {!item.sup && <span style={C.tag('#f5a623','rgba(245,166,35,.10)')}>No supplier</span>}
+                          <Btn label="Edit" onClick={() => setEditModal({ ...item })} sm />
+                          <Btn label="Delete" onClick={() => deleteItem(item.id)} sm />
                         </div>
                       </div>
                     )
@@ -572,36 +623,44 @@ export default function App() {
 
           {/* ══════════ SUPPLIERS ══════════ */}
           {tab === 'suppliers' && (
-            <div>
-              <div style={{ fontFamily:'serif', fontSize:22, marginBottom:3 }}>Suppliers</div>
-              <div style={{ fontSize:12, color:'#888', marginBottom:18 }}>공급업체 정보를 관리하세요</div>
+            <div className="fade-in">
+              <PageHeader title="Suppliers" sub="공급업체 정보를 관리하세요" />
 
-              <div style={{ marginBottom:16 }}>
+              <div style={{ marginBottom:18 }}>
                 <Btn label="+ Add Supplier" onClick={() => setSupModal({ name:'', phone:'', email:'', leadTime:'' })} primary />
               </div>
 
               {suppliers.length === 0 ? (
                 <div style={C.card}>
-                  <div style={{ padding:'40px 20px', textAlign:'center', color:'#666' }}>
-                    <div style={{ fontSize:36, marginBottom:10 }}>🏪</div>
-                    <div style={{ fontSize:14, fontWeight:600, color:'#f0ede8', marginBottom:4 }}>No suppliers yet</div>
-                    <div style={{ fontSize:12 }}>Add suppliers to enable automatic order grouping</div>
+                  <div style={{ padding:'48px 24px', textAlign:'center' }}>
+                    <div style={{ width:48, height:48, margin:'0 auto 14px', borderRadius:14, background:'rgba(255,255,255,.04)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:22, opacity:.8 }}>🏪</div>
+                    <div style={{ fontSize:15, fontWeight:600, color:'#f4f2ee', marginBottom:6, letterSpacing:'-.01em' }}>No suppliers yet</div>
+                    <div style={{ fontSize:12.5, color:'#8a8a8a' }}>Add suppliers to enable automatic order grouping</div>
                   </div>
                 </div>
               ) : (
-                <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))', gap:12 }}>
+                <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(300px,1fr))', gap:14 }}>
                   {suppliers.map(sup => (
-                    <div key={sup.id} style={{ ...C.card, marginBottom:0, padding:16 }}>
-                      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:10 }}>
-                        <div style={{ fontWeight:600, fontSize:14 }}>🏪 {sup.name}</div>
+                    <div key={sup.id}
+                      onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,.10)'}
+                      onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,.06)'}
+                      style={{ ...C.card, marginBottom:0, padding:18, transition:'border-color .15s' }}>
+                      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:14 }}>
+                        <div style={{ display:'flex', alignItems:'center', gap:10, minWidth:0 }}>
+                          <div style={{ width:36, height:36, borderRadius:10, background:'rgba(62,207,142,.10)', color:'#3ecf8e', display:'flex', alignItems:'center', justifyContent:'center', fontSize:15, fontWeight:600, flexShrink:0 }}>
+                            {sup.name?.charAt(0)?.toUpperCase() || '?'}
+                          </div>
+                          <div style={{ fontWeight:600, fontSize:14, letterSpacing:'-.005em', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{sup.name}</div>
+                        </div>
                         <div style={{ display:'flex', gap:6 }}>
-                          <Btn label="✏️" onClick={() => setSupModal({ ...sup })} sm />
-                          <Btn label="🗑" onClick={() => deleteSup(sup.id)} sm />
+                          <Btn label="Edit" onClick={() => setSupModal({ ...sup })} sm />
                         </div>
                       </div>
-                      {sup.phone && <div style={{ fontSize:12, color:'#888', marginBottom:3 }}>📞 {sup.phone}</div>}
-                      {sup.email && <div style={{ fontSize:12, color:'#888', marginBottom:3 }}>✉️ {sup.email}</div>}
-                      {sup.leadTime && <div style={{ fontSize:12, color:'#888' }}>🕐 Lead time: {sup.leadTime}</div>}
+                      <div style={{ display:'grid', gap:6 }}>
+                        {sup.phone && <div style={{ fontSize:12.5, color:'#9a9a9a', display:'flex', gap:8 }}><span style={{ color:'#5a5a5a', width:60 }}>Phone</span>{sup.phone}</div>}
+                        {sup.email && <div style={{ fontSize:12.5, color:'#9a9a9a', display:'flex', gap:8 }}><span style={{ color:'#5a5a5a', width:60 }}>Email</span>{sup.email}</div>}
+                        {sup.leadTime && <div style={{ fontSize:12.5, color:'#9a9a9a', display:'flex', gap:8 }}><span style={{ color:'#5a5a5a', width:60 }}>Lead time</span>{sup.leadTime}</div>}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -611,90 +670,98 @@ export default function App() {
 
           {/* ══════════ ORDERS ══════════ */}
           {tab === 'orders' && (
-            <div>
-              <div style={{ fontFamily:'serif', fontSize:22, marginBottom:3 }}>Supplier Orders</div>
-              <div style={{ fontSize:12, color:'#888', marginBottom:18 }}>Par level 미달 품목의 발주서를 자동 생성합니다</div>
+            <div className="fade-in">
+              <PageHeader title="Supplier Orders" sub="Par level 미달 품목의 발주서를 자동 생성합니다" />
 
-              <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:20 }}>
+              <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:14, marginBottom:22 }}>
                 {(() => {
                   const needs  = inventory.filter(i => i.par > 0 && pct(i.cur,i.par) < 80)
                   const total  = orders ? Object.values(orders).flat().reduce((s,i)=>s+i.lineTotal,0) : 0
                   return [
                     { lbl:'Items to Order', val:needs.length,  color:'#f5a623' },
                     { lbl:'Suppliers',      val:[...new Set(needs.map(i=>i.sup||'Unassigned'))].length, color:null },
-                    { lbl:'Critical',       val:criticalCount, color: criticalCount>0?'#e05252':null },
+                    { lbl:'Critical',       val:criticalCount, color: criticalCount>0?'#ef5a5a':null },
                     { lbl:'Est. Total',     val:fmt(total),    color:'#3ecf8e' },
                   ].map(s => (
-                    <div key={s.lbl} style={{ background:'#161616', border:'1px solid #242424', borderRadius:10, padding:16 }}>
-                      <div style={{ fontSize:10, textTransform:'uppercase', letterSpacing:'.8px', color:'#666', marginBottom:6 }}>{s.lbl}</div>
-                      <div style={{ fontFamily:'serif', fontSize:24, color: s.color || '#f0ede8' }}>{s.val}</div>
+                    <div key={s.lbl} style={C.stat}>
+                      <div style={{ fontSize:10.5, textTransform:'uppercase', letterSpacing:'.08em', color:'#7a7a7a', marginBottom:8, fontWeight:600 }}>{s.lbl}</div>
+                      <div className="serif" style={{ fontSize:28, color: s.color || '#f4f2ee', fontWeight:500 }}>{s.val}</div>
                     </div>
                   ))
                 })()}
               </div>
 
-              {noPar > 0 && <div style={C.alert('#f5a623','rgba(245,166,35,.08)','rgba(245,166,35,.25)')}>
-                ⚠️ {noPar}개 품목에 Par Level 미설정 → Inventory 탭에서 먼저 설정하세요
+              {noPar > 0 && <div style={C.alert('#f5a623','rgba(245,166,35,.08)','rgba(245,166,35,.20)')}>
+                <span>{noPar}개 품목에 Par Level 미설정 → Inventory 탭에서 먼저 설정하세요</span>
               </div>}
 
               {!orders ? (
                 <div style={C.card}>
-                  <div style={{ padding:'36px 20px', textAlign:'center' }}>
-                    <div style={{ fontSize:40, marginBottom:12 }}>📦</div>
-                    <div style={{ fontFamily:'serif', fontSize:18, marginBottom:8 }}>발주서 자동 생성</div>
-                    <div style={{ fontSize:12, color:'#666', marginBottom:20 }}>Par level 미달 품목을 공급업체별로 자동 그룹핑합니다</div>
-                    <Btn label="⚡ Generate Orders" onClick={generateOrders} primary
+                  <div style={{ padding:'52px 24px', textAlign:'center' }}>
+                    <div style={{ width:52, height:52, margin:'0 auto 16px', borderRadius:14, background:'rgba(62,207,142,.10)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:24 }}>📦</div>
+                    <div className="serif" style={{ fontSize:22, marginBottom:8, fontWeight:500 }}>발주서 자동 생성</div>
+                    <div style={{ fontSize:12.5, color:'#8a8a8a', marginBottom:22, maxWidth:400, margin:'0 auto 22px' }}>Par level 미달 품목을 공급업체별로 자동 그룹핑합니다</div>
+                    <Btn label="Generate Orders" onClick={generateOrders} primary
                       disabled={inventory.filter(i=>i.par>0).length===0} />
                   </div>
                 </div>
               ) : (
                 <div>
-                  <div style={{ display:'flex', justifyContent:'space-between', marginBottom:12 }}>
-                    <div style={{ fontSize:12, color:'#666' }}>{Object.keys(orders).length}개 발주서 생성됨</div>
-                    <Btn label="↺ Reset" onClick={() => { setOrders(null); setSent({}) }} sm />
+                  <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
+                    <div style={{ fontSize:12.5, color:'#8a8a8a' }}>{Object.keys(orders).length}개 발주서 생성됨</div>
+                    <Btn label="Reset" onClick={() => { setOrders(null); setSent({}) }} sm />
                   </div>
 
                   {Object.entries(orders).map(([supName, items]) => {
                     const supInfo = suppliers.find(s => s.name === supName)
                     const subT = items.reduce((s,i) => s+i.lineTotal, 0)
                     return (
-                      <div key={supName} style={{ border:'1px solid #242424', borderRadius:10, overflow:'hidden', marginBottom:12 }}>
-                        <div style={{ background:'rgba(62,207,142,.08)', borderBottom:'1px solid #242424', padding:'10px 16px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-                          <div>
-                            <div style={{ fontWeight:600, fontSize:13 }}>🏪 {supName}</div>
-                            {supInfo && <div style={{ fontSize:11, color:'#666', marginTop:2 }}>
-                              {supInfo.phone && `📞 ${supInfo.phone}  `}{supInfo.email && `✉️ ${supInfo.email}`}
-                            </div>}
+                      <div key={supName} style={{ border:'1px solid rgba(255,255,255,.06)', borderRadius:14, overflow:'hidden', marginBottom:14, background:'#141414' }}>
+                        <div style={{ background:'rgba(62,207,142,.06)', borderBottom:'1px solid rgba(255,255,255,.06)', padding:'14px 18px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+                          <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+                            <div style={{ width:34, height:34, borderRadius:10, background:'rgba(62,207,142,.14)', color:'#3ecf8e', display:'flex', alignItems:'center', justifyContent:'center', fontSize:14, fontWeight:600 }}>
+                              {supName.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                              <div style={{ fontWeight:600, fontSize:13.5, letterSpacing:'-.005em' }}>{supName}</div>
+                              {supInfo && <div style={{ fontSize:11, color:'#7a7a7a', marginTop:2 }}>
+                                {supInfo.phone && supInfo.phone}{supInfo.phone && supInfo.email && ' · '}{supInfo.email}
+                              </div>}
+                            </div>
                           </div>
                           <div style={{ display:'flex', gap:8, alignItems:'center' }}>
-                            {supInfo?.leadTime && <span style={C.tag('#5b8dee','rgba(91,141,238,.15)')}>🕐 {supInfo.leadTime}</span>}
+                            {supInfo?.leadTime && <span style={C.tag('#6ea8fe','rgba(110,168,254,.12)')}>{supInfo.leadTime}</span>}
                             {sentMap[supName]
-                              ? <span style={C.tag('#3ecf8e','rgba(62,207,142,.15)')}>✓ Sent</span>
-                              : <Btn label="📧 Send Order" onClick={() => setSent(s=>({...s,[supName]:true}))} primary sm />}
+                              ? <span style={C.tag('#3ecf8e','rgba(62,207,142,.14)')}>✓ Sent</span>
+                              : <Btn label="Send Order" onClick={() => setSent(s=>({...s,[supName]:true}))} primary sm />}
                           </div>
                         </div>
-                        <div style={{ display:'grid', gridTemplateColumns:'1fr 80px 80px 90px', gap:12, padding:'7px 16px', fontSize:10, textTransform:'uppercase', letterSpacing:'.6px', color:'#666', background:'rgba(255,255,255,.02)' }}>
+                        <div style={{ display:'grid', gridTemplateColumns:'1fr 90px 90px 100px', gap:12, padding:'9px 18px', fontSize:10.5, textTransform:'uppercase', letterSpacing:'.08em', color:'#6a6a6a', background:'rgba(255,255,255,.015)', fontWeight:600 }}>
                           <span>Item</span><span>Qty</span><span>Cost</span><span>Total</span>
                         </div>
                         {items.map(item => (
-                          <div key={item.id} style={{ display:'grid', gridTemplateColumns:'1fr 80px 80px 90px', gap:12, padding:'8px 16px', borderTop:'1px solid #1a1a1a', fontSize:13, alignItems:'center' }}>
-                            <span>{item.icon} {item.name}{pct(item.cur,item.par)<=30&&<span style={{...C.tag('#e05252','rgba(224,82,82,.15)'),marginLeft:6}}>Urgent</span>}</span>
+                          <div key={item.id} style={{ display:'grid', gridTemplateColumns:'1fr 90px 90px 100px', gap:12, padding:'11px 18px', borderTop:'1px solid rgba(255,255,255,.04)', fontSize:13, alignItems:'center' }}>
+                            <span style={{ display:'inline-flex', alignItems:'center', gap:8 }}>
+                              <span style={{ fontSize:18 }}>{item.icon}</span>
+                              <span>{item.name}</span>
+                              {pct(item.cur,item.par)<=30 && <span style={C.tag('#ef5a5a','rgba(239,90,90,.12)')}>Urgent</span>}
+                            </span>
                             <span style={{ fontWeight:600 }}>{item.qty} {item.unit}</span>
-                            <span style={{ color:'#666' }}>{item.cost ? fmt(item.cost) : '—'}</span>
+                            <span style={{ color:'#8a8a8a' }}>{item.cost ? fmt(item.cost) : '—'}</span>
                             <span style={{ fontWeight:600 }}>{item.cost ? fmt(item.lineTotal) : '—'}</span>
                           </div>
                         ))}
-                        <div style={{ padding:'9px 16px', display:'flex', justifyContent:'flex-end', gap:8, fontSize:13, fontWeight:600, borderTop:'1px solid #242424', background:'rgba(255,255,255,.02)' }}>
-                          <span style={{ fontWeight:400, color:'#666' }}>Subtotal:</span>
+                        <div style={{ padding:'11px 18px', display:'flex', justifyContent:'flex-end', gap:10, fontSize:13, fontWeight:600, borderTop:'1px solid rgba(255,255,255,.06)', background:'rgba(255,255,255,.015)' }}>
+                          <span style={{ fontWeight:400, color:'#7a7a7a' }}>Subtotal</span>
                           <span>{subT > 0 ? fmt(subT) : '(no cost set)'}</span>
                         </div>
                       </div>
                     )
                   })}
 
-                  <div style={{ ...C.card, padding:16, display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-                    <div style={{ fontFamily:'serif', fontSize:18 }}>Total Order Value</div>
-                    <div style={{ fontFamily:'serif', fontSize:24, color:'#3ecf8e' }}>
+                  <div style={{ ...C.card, padding:'18px 22px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                    <div className="serif" style={{ fontSize:20, fontWeight:500 }}>Total Order Value</div>
+                    <div className="serif" style={{ fontSize:30, color:'#3ecf8e', fontWeight:500 }}>
                       {fmt(Object.values(orders).flat().reduce((s,i)=>s+i.lineTotal,0))}
                     </div>
                   </div>
@@ -709,13 +776,15 @@ export default function App() {
       {/* ══════════ EDIT MODAL ══════════ */}
       {editModal && (
         <div style={C.modal} onClick={e => { if(e.target===e.currentTarget) setEditModal(null) }}>
-          <div style={{ background:'#161616', border:'1px solid #2a2a2a', borderRadius:16, width:'100%', maxWidth:560, maxHeight:'90vh', overflow:'auto' }}>
-            <div style={{ padding:'18px 20px', borderBottom:'1px solid #242424', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-              <div style={{ fontSize:16, fontWeight:600 }}>{editModal.icon} {editModal.name}</div>
-              <button onClick={() => setEditModal(null)} style={{ background:'none', border:'none', color:'#888', fontSize:20, cursor:'pointer' }}>✕</button>
+          <div className="fade-in" style={{ background:'#141414', border:'1px solid rgba(255,255,255,.08)', borderRadius:16, width:'100%', maxWidth:580, maxHeight:'90vh', overflow:'auto', boxShadow:'0 24px 60px rgba(0,0,0,.55)' }}>
+            <div style={{ padding:'20px 24px', borderBottom:'1px solid rgba(255,255,255,.06)', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+              <div style={{ fontSize:16, fontWeight:600, letterSpacing:'-.01em', display:'flex', alignItems:'center', gap:10 }}>
+                <span style={{ fontSize:20 }}>{editModal.icon}</span> {editModal.name}
+              </div>
+              <button onClick={() => setEditModal(null)} style={{ background:'rgba(255,255,255,.04)', border:'1px solid rgba(255,255,255,.06)', color:'#9a9a9a', fontSize:14, cursor:'pointer', width:30, height:30, borderRadius:8, display:'flex', alignItems:'center', justifyContent:'center' }}>✕</button>
             </div>
 
-            <div style={{ padding:20, display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}>
+            <div style={{ padding:'22px 24px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:18 }}>
 
               <div style={{ gridColumn:'1/-1' }}>
                 <Field label="Item Name">
@@ -779,9 +848,9 @@ export default function App() {
 
             </div>
 
-            <div style={{ padding:'0 20px 20px', display:'flex', gap:8, justifyContent:'flex-end' }}>
+            <div style={{ padding:'4px 24px 22px', display:'flex', gap:8, justifyContent:'flex-end' }}>
               <Btn label="Cancel" onClick={() => setEditModal(null)} />
-              <Btn label="💾 Save to Airtable" primary onClick={async () => {
+              <Btn label="Save to Airtable" primary onClick={async () => {
                 setSaving(true)
                 await saveItem(editModal.id, editModal)
                 setSaving(false)
@@ -795,13 +864,13 @@ export default function App() {
       {/* ══════════ SUPPLIER MODAL ══════════ */}
       {supModal !== null && (
         <div style={C.modal} onClick={e => { if(e.target===e.currentTarget) setSupModal(null) }}>
-          <div style={{ background:'#161616', border:'1px solid #2a2a2a', borderRadius:16, width:'100%', maxWidth:440 }}>
-            <div style={{ padding:'18px 20px', borderBottom:'1px solid #242424', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-              <div style={{ fontSize:16, fontWeight:600 }}>{supModal.id ? 'Edit Supplier' : 'Add Supplier'}</div>
-              <button onClick={() => setSupModal(null)} style={{ background:'none', border:'none', color:'#888', fontSize:20, cursor:'pointer' }}>✕</button>
+          <div className="fade-in" style={{ background:'#141414', border:'1px solid rgba(255,255,255,.08)', borderRadius:16, width:'100%', maxWidth:460, boxShadow:'0 24px 60px rgba(0,0,0,.55)' }}>
+            <div style={{ padding:'20px 24px', borderBottom:'1px solid rgba(255,255,255,.06)', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+              <div style={{ fontSize:16, fontWeight:600, letterSpacing:'-.01em' }}>{supModal.id ? 'Edit Supplier' : 'Add Supplier'}</div>
+              <button onClick={() => setSupModal(null)} style={{ background:'rgba(255,255,255,.04)', border:'1px solid rgba(255,255,255,.06)', color:'#9a9a9a', fontSize:14, cursor:'pointer', width:30, height:30, borderRadius:8, display:'flex', alignItems:'center', justifyContent:'center' }}>✕</button>
             </div>
 
-            <div style={{ padding:20, display:'flex', flexDirection:'column', gap:14 }}>
+            <div style={{ padding:24, display:'flex', flexDirection:'column', gap:16 }}>
               <Field label="Supplier Name">
                 <input type="text" value={supModal.name} onChange={e => setSupModal(m=>({...m,name:e.target.value}))}
                   placeholder="e.g. Metro Foods" style={C.input} />
@@ -820,13 +889,13 @@ export default function App() {
               </Field>
             </div>
 
-            <div style={{ padding:'0 20px 20px', display:'flex', gap:8, justifyContent:'space-between' }}>
+            <div style={{ padding:'4px 24px 22px', display:'flex', gap:8, justifyContent:'space-between' }}>
               <div>
-                {supModal.id && <Btn label="🗑 Delete" onClick={() => deleteSup(supModal.id)} color="#e05252" />}
+                {supModal.id && <Btn label="Delete" onClick={() => deleteSup(supModal.id)} color="#ef5a5a" />}
               </div>
               <div style={{ display:'flex', gap:8 }}>
                 <Btn label="Cancel" onClick={() => setSupModal(null)} />
-                <Btn label="💾 Save" primary onClick={() => saveSupplier(supModal)} disabled={!supModal.name} />
+                <Btn label="Save" primary onClick={() => saveSupplier(supModal)} disabled={!supModal.name} />
               </div>
             </div>
           </div>
