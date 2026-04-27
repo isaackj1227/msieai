@@ -47,7 +47,7 @@ const C = {
   sub:    { fontSize:13, color:'#8a8a8a', marginBottom:24, letterSpacing:'-.005em' },
 }
 
-function Btn({ label, onClick, primary, sm, disabled, full, color, ghost }) {
+function Btn({ label, onClick, primary, sm, disabled, full, color, ghost, icon }) {
   const isPrimary = primary && !color
   const bg = disabled ? 'rgba(255,255,255,.04)'
     : color ? color
@@ -65,7 +65,7 @@ function Btn({ label, onClick, primary, sm, disabled, full, color, ghost }) {
       onMouseEnter={e => { if (!disabled) e.currentTarget.style.filter = 'brightness(1.12)' }}
       onMouseLeave={e => { e.currentTarget.style.filter = 'none' }}
       style={{
-        display:'inline-flex', alignItems:'center', justifyContent: full ? 'center' : 'flex-start', gap:6,
+        display:'inline-flex', alignItems:'center', justifyContent: full ? 'center' : 'flex-start', gap:7,
         padding: sm ? '6px 12px' : '9px 16px',
         borderRadius:10, fontSize: sm ? 12 : 13, fontWeight:500,
         cursor: disabled ? 'not-allowed' : 'pointer', fontFamily:'inherit',
@@ -74,6 +74,7 @@ function Btn({ label, onClick, primary, sm, disabled, full, color, ghost }) {
         opacity: disabled ? .55 : 1, transition:'filter .15s ease, transform .05s ease',
         width: full ? '100%' : undefined, letterSpacing:'-.005em',
       }}>
+      {icon && <Icon name={icon} size={sm ? 13 : 14} />}
       {label}
     </button>
   )
@@ -88,6 +89,30 @@ function Field({ label, warn, children }) {
       {children}
     </div>
   )
+}
+
+// ── Icons (lucide-style, 1.6 stroke) ────────────────────────────
+const Icon = ({ name, size = 16, color = 'currentColor', strokeWidth = 1.6 }) => {
+  const p = { width: size, height: size, viewBox: '0 0 24 24', fill: 'none', stroke: color, strokeWidth, strokeLinecap: 'round', strokeLinejoin: 'round' }
+  switch (name) {
+    case 'camera':   return <svg {...p}><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="4"/></svg>
+    case 'box':      return <svg {...p}><path d="m21 8-9-5-9 5 9 5 9-5Z"/><path d="m3 8 9 5 9-5"/><path d="M3 8v8l9 5 9-5V8"/><path d="m12 13 0 8"/></svg>
+    case 'store':    return <svg {...p}><path d="M3 9 4.5 4h15L21 9"/><path d="M3 9v11h18V9"/><path d="M9 20v-6h6v6"/><path d="M3 9c0 1.7 1.3 3 3 3s3-1.3 3-3 1.3 3 3 3 3-1.3 3-3 1.3 3 3 3 3-1.3 3-3"/></svg>
+    case 'package':  return <svg {...p}><path d="M16.5 9.4 7.5 4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.27 6.96 8.73 5.05 8.73-5.05"/><path d="M12 22.08V12"/></svg>
+    case 'search':   return <svg {...p}><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    case 'plus':     return <svg {...p}><path d="M12 5v14M5 12h14"/></svg>
+    case 'edit':     return <svg {...p}><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+    case 'trash':    return <svg {...p}><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+    case 'x':        return <svg {...p}><path d="M18 6 6 18M6 6l12 12"/></svg>
+    case 'check':    return <svg {...p}><path d="M20 6 9 17l-5-5"/></svg>
+    case 'send':     return <svg {...p}><path d="m22 2-7 20-4-9-9-4 20-7Z"/><path d="M22 2 11 13"/></svg>
+    case 'sparkle':  return <svg {...p}><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/><circle cx="12" cy="12" r="3"/></svg>
+    case 'upload':   return <svg {...p}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8 12 3 7 8"/><path d="M12 3v12"/></svg>
+    case 'refresh':  return <svg {...p}><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg>
+    case 'alert':    return <svg {...p}><path d="M10.3 3.86a2 2 0 0 1 3.4 0l8.6 14.36A2 2 0 0 1 20.6 21H3.4a2 2 0 0 1-1.7-2.78L10.3 3.86Z"/><path d="M12 9v4M12 17h.01"/></svg>
+    case 'info':     return <svg {...p}><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
+    default: return null
+  }
 }
 
 function PageHeader({ title, sub }) {
@@ -299,10 +324,10 @@ export default function App() {
         <nav style={{ padding:12, flex:1 }}>
           <div style={{ fontSize:10, color:'#4a4a4a', textTransform:'uppercase', letterSpacing:'.08em', fontWeight:600, padding:'4px 10px 8px' }}>Workspace</div>
           {[
-            { id:'vision',    icon:'◎', label:'Vision Scan' },
-            { id:'inventory', icon:'◫', label:'Inventory' },
-            { id:'suppliers', icon:'◇', label:'Suppliers' },
-            { id:'orders',    icon:'◰', label:'Orders' },
+            { id:'vision',    icon:'camera',  label:'Vision Scan' },
+            { id:'inventory', icon:'box',     label:'Inventory' },
+            { id:'suppliers', icon:'store',   label:'Suppliers' },
+            { id:'orders',    icon:'package', label:'Orders' },
           ].map(t => {
             const active = tab === t.id
             return (
@@ -318,7 +343,7 @@ export default function App() {
                   marginBottom:2, textAlign:'left', letterSpacing:'-.005em',
                   transition:'background .12s ease, color .12s ease',
               }}>
-                <span style={{ width:16, textAlign:'center', fontSize:14, opacity: active ? 1 : .65 }}>{t.icon}</span>
+                <Icon name={t.icon} size={16} />
                 <span>{t.label}</span>
                 {t.id==='orders' && criticalCount > 0 && (
                   <span style={{ marginLeft:'auto', background:'#ef5a5a', color:'#fff', fontSize:10, fontWeight:700, padding:'1px 7px', borderRadius:999, lineHeight:1.5 }}>{criticalCount}</span>
@@ -363,8 +388,8 @@ export default function App() {
                 {/* Left */}
                 <div>
                   <div style={{ display:'flex', gap:8, marginBottom:14 }}>
-                    <Btn label="📁 Upload Photo" onClick={() => { stopCamera(); setImgSrc(null); setImgB64(null) }} primary={!camMode} sm />
-                    <Btn label="📸 Camera" onClick={startCamera} primary={camMode} sm />
+                    <Btn label="Upload Photo" icon="upload" onClick={() => { stopCamera(); setImgSrc(null); setImgB64(null) }} primary={!camMode} sm />
+                    <Btn label="Camera" icon="camera" onClick={startCamera} primary={camMode} sm />
                   </div>
 
                   {camMode && (
@@ -375,8 +400,8 @@ export default function App() {
                         <canvas ref={canvasRef} style={{ display:'none' }} />
                       </div>
                       <div style={{ display:'flex', gap:8 }}>
-                        <Btn label="📷 Capture" onClick={captureFrame} primary disabled={!camReady} full />
-                        <Btn label="✕" onClick={stopCamera} sm />
+                        <Btn label="Capture" icon="camera" onClick={captureFrame} primary disabled={!camReady} full />
+                        <Btn label="" icon="x" onClick={stopCamera} sm />
                       </div>
                     </div>
                   )}
@@ -388,23 +413,27 @@ export default function App() {
                       onDrop={e => { e.preventDefault(); e.currentTarget.style.borderColor='rgba(255,255,255,.10)'; e.currentTarget.style.background='transparent'; loadFile(e.dataTransfer.files[0]) }}
                       onMouseEnter={e => e.currentTarget.style.borderColor='rgba(255,255,255,.18)'}
                       onMouseLeave={e => e.currentTarget.style.borderColor='rgba(255,255,255,.10)'}
-                      style={{ border:'1.5px dashed rgba(255,255,255,.10)', borderRadius:14, padding:'44px 24px', textAlign:'center', cursor:'pointer', transition:'border-color .2s, background .2s', marginBottom:12, background:'transparent' }}>
+                      style={{ border:'1.5px dashed rgba(255,255,255,.10)', borderRadius:14, padding:'48px 24px', textAlign:'center', cursor:'pointer', transition:'border-color .2s, background .2s', marginBottom:12, background:'transparent' }}>
                       <input ref={fileRef} type="file" accept="image/*" style={{ display:'none' }} onChange={e => loadFile(e.target.files[0])} />
-                      <div style={{ fontSize:32, marginBottom:12, opacity:.8 }}>📁</div>
-                      <div style={{ fontSize:14, fontWeight:600, marginBottom:4 }}>Click or drag a photo</div>
+                      <div style={{ width:48, height:48, margin:'0 auto 14px', borderRadius:14, background:'rgba(255,255,255,.04)', display:'flex', alignItems:'center', justifyContent:'center', color:'#9a9a9a' }}>
+                        <Icon name="upload" size={20} />
+                      </div>
+                      <div style={{ fontSize:14, fontWeight:600, marginBottom:4, letterSpacing:'-.005em' }}>Click or drag a photo</div>
                       <div style={{ fontSize:12, color:'#7a7a7a' }}>Walk-in · Freezer · Dry storage · Prep area</div>
                     </div>
                   )}
 
                   {!camMode && imgSrc && (
                     <div style={{ marginBottom:12 }}>
-                      <div style={{ borderRadius:10, overflow:'hidden', border:'1px solid #2a2a2a', marginBottom:8, position:'relative' }}>
-                        <img src={imgSrc} alt="" style={{ width:'100%', maxHeight:220, objectFit:'cover', display:'block' }} />
-                        <div style={{ position:'absolute', bottom:0, left:0, right:0, background:'linear-gradient(transparent,rgba(0,0,0,.7))', padding:'16px 12px 8px', fontSize:11, color:'#fff' }}>✅ Photo ready</div>
+                      <div style={{ borderRadius:12, overflow:'hidden', border:'1px solid rgba(255,255,255,.08)', marginBottom:10, position:'relative' }}>
+                        <img src={imgSrc} alt="" style={{ width:'100%', maxHeight:240, objectFit:'cover', display:'block' }} />
+                        <div style={{ position:'absolute', top:10, right:10, background:'rgba(62,207,142,.18)', color:'#3ecf8e', backdropFilter:'blur(8px)', WebkitBackdropFilter:'blur(8px)', padding:'4px 10px', fontSize:11, borderRadius:999, fontWeight:600, display:'inline-flex', alignItems:'center', gap:5 }}>
+                          <Icon name="check" size={12} /> Photo ready
+                        </div>
                       </div>
                       <div style={{ display:'flex', gap:8 }}>
-                        <Btn label="✕ Remove" onClick={() => { setImgSrc(null); setImgB64(null); setDetected(null) }} sm />
-                        <Btn label="🔄 Change" onClick={() => fileRef.current.click()} sm />
+                        <Btn label="Remove" icon="x" onClick={() => { setImgSrc(null); setImgB64(null); setDetected(null) }} sm />
+                        <Btn label="Change" icon="refresh" onClick={() => fileRef.current.click()} sm />
                         <input ref={fileRef} type="file" accept="image/*" style={{ display:'none' }} onChange={e => loadFile(e.target.files[0])} />
                       </div>
                     </div>
@@ -418,29 +447,33 @@ export default function App() {
                           placeholder="e.g. Walk-in cooler, Saturday service..."
                           style={{ ...C.input, resize:'vertical' }} />
                       </div>
-                      <Btn label={analyzing ? '⏳ Analyzing...' : '🔍 Analyze & Detect Items'}
+                      <Btn label={analyzing ? 'Analyzing…' : 'Analyze & Detect Items'} icon={analyzing ? null : 'sparkle'}
                         onClick={doAnalyze} primary full disabled={!imgB64 || analyzing} />
                     </>
                   )}
 
-                  {vErr && <div style={{ ...C.alert('#e05252','rgba(224,82,82,.1)','rgba(224,82,82,.3)'), marginTop:10 }}>⚠️ {vErr}</div>}
+                  {vErr && <div style={{ ...C.alert('#ef5a5a','rgba(239,90,90,.10)','rgba(239,90,90,.25)'), marginTop:10 }}><Icon name="alert" size={14} color="#ef5a5a" />{vErr}</div>}
                 </div>
 
                 {/* Right: results */}
                 <div>
                   {!detected && !analyzing && (
                     <div style={C.card}>
-                      <div style={{ padding:'32px 24px', textAlign:'center' }}>
-                        <div style={{ width:48, height:48, margin:'0 auto 16px', borderRadius:14, background:'rgba(62,207,142,.10)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:22 }}>🤖</div>
+                      <div style={{ padding:'36px 24px', textAlign:'center' }}>
+                        <div style={{ width:48, height:48, margin:'0 auto 16px', borderRadius:14, background:'rgba(62,207,142,.10)', display:'flex', alignItems:'center', justifyContent:'center', color:'#3ecf8e' }}>
+                          <Icon name="sparkle" size={22} />
+                        </div>
                         <div style={{ fontSize:15, fontWeight:600, marginBottom:6, letterSpacing:'-.01em' }}>AI Vision Ready</div>
                         <div style={{ fontSize:12.5, color:'#8a8a8a', lineHeight:1.65 }}>
                           사진을 찍으면 AI가 자동으로<br/>모든 식재료를 감지합니다
                         </div>
-                        <div style={{ marginTop:20, padding:'14px 16px', borderRadius:10, background:'rgba(255,255,255,.02)', border:'1px solid rgba(255,255,255,.04)', fontSize:12, color:'#8a8a8a', textAlign:'left', display:'grid', gap:6 }}>
-                          <div>· 품목 자동 감지</div>
-                          <div>· 수량 추정</div>
-                          <div>· 상태 평가</div>
-                          <div>· Airtable 자동 저장</div>
+                        <div style={{ marginTop:22, padding:'14px 16px', borderRadius:10, background:'rgba(255,255,255,.02)', border:'1px solid rgba(255,255,255,.04)', fontSize:12.5, color:'#9a9a9a', textAlign:'left', display:'grid', gap:8 }}>
+                          {['품목 자동 감지','수량 추정','상태 평가','Airtable 자동 저장'].map(line => (
+                            <div key={line} style={{ display:'flex', alignItems:'center', gap:8 }}>
+                              <span style={{ color:'#3ecf8e', display:'inline-flex' }}><Icon name="check" size={13} /></span>
+                              {line}
+                            </div>
+                          ))}
                         </div>
                       </div>
                     </div>
@@ -448,8 +481,10 @@ export default function App() {
 
                   {analyzing && (
                     <div style={C.card}>
-                      <div style={{ padding:'48px 24px', textAlign:'center' }}>
-                        <div style={{ width:48, height:48, margin:'0 auto 16px', borderRadius:14, background:'rgba(62,207,142,.10)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:22 }} className="pulse">🧠</div>
+                      <div style={{ padding:'52px 24px', textAlign:'center' }}>
+                        <div className="pulse" style={{ width:48, height:48, margin:'0 auto 16px', borderRadius:14, background:'rgba(62,207,142,.10)', display:'flex', alignItems:'center', justifyContent:'center', color:'#3ecf8e' }}>
+                          <Icon name="sparkle" size={22} />
+                        </div>
                         <div style={{ fontWeight:600, marginBottom:6, letterSpacing:'-.01em' }}>AI가 분석 중</div>
                         <div style={{ fontSize:12.5, color:'#8a8a8a' }}>모든 식재료를 감지하고 있습니다</div>
                       </div>
@@ -467,8 +502,8 @@ export default function App() {
                       </div>
 
                       {detected.alerts?.length > 0 && (
-                        <div style={{ padding:'10px 18px 0' }}>
-                          {detected.alerts.map((a,i) => <div key={i} style={C.alert('#f5a623','rgba(245,166,35,.1)','rgba(245,166,35,.3)')}>⚠️ {a}</div>)}
+                        <div style={{ padding:'12px 20px 0' }}>
+                          {detected.alerts.map((a,i) => <div key={i} style={C.alert('#f5a623','rgba(245,166,35,.10)','rgba(245,166,35,.22)')}><Icon name="alert" size={14} color="#f5a623" />{a}</div>)}
                         </div>
                       )}
 
@@ -505,6 +540,7 @@ export default function App() {
 
                       <div style={{ padding:20, display:'flex', gap:8 }}>
                         <Btn label={saving ? 'Saving…' : `Save ${detected.items?.filter(i=>i._selected).length || 0} to Airtable`}
+                          icon={saving ? null : 'check'}
                           onClick={addDetectedToInventory} primary
                           disabled={saving || !detected.items?.some(i=>i._selected)} />
                         <Btn label="Cancel" onClick={() => setDetected(null)} sm />
@@ -537,9 +573,11 @@ export default function App() {
               </div>
 
               {noPar > 0 && <div style={C.alert('#f5a623','rgba(245,166,35,.08)','rgba(245,166,35,.20)')}>
+                <Icon name="alert" size={14} color="#f5a623" />
                 <span><strong>{noPar}개 품목</strong>에 Par Level 미설정 — 각 품목의 Edit 버튼을 눌러 설정하세요</span>
               </div>}
               {noSup > 0 && <div style={C.alert('#6ea8fe','rgba(110,168,254,.08)','rgba(110,168,254,.22)')}>
+                <Icon name="info" size={14} color="#6ea8fe" />
                 <span><strong>{noSup}개 품목</strong>에 Supplier 미설정 — 발주서 생성을 위해 지정해 주세요</span>
               </div>}
 
@@ -550,10 +588,12 @@ export default function App() {
               ) : inventory.length === 0 ? (
                 <div style={C.card}>
                   <div style={{ padding:'56px 24px', textAlign:'center' }}>
-                    <div style={{ width:52, height:52, margin:'0 auto 16px', borderRadius:14, background:'rgba(62,207,142,.10)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:24 }}>📷</div>
+                    <div style={{ width:52, height:52, margin:'0 auto 16px', borderRadius:14, background:'rgba(62,207,142,.10)', display:'flex', alignItems:'center', justifyContent:'center', color:'#3ecf8e' }}>
+                      <Icon name="camera" size={24} />
+                    </div>
                     <div style={{ fontSize:16, fontWeight:600, marginBottom:8, letterSpacing:'-.01em' }}>Inventory가 비어있습니다</div>
                     <div style={{ fontSize:13, color:'#8a8a8a', marginBottom:22 }}>Vision Scan에서 사진을 찍어 품목을 추가하세요</div>
-                    <Btn label="Go to Vision Scan" onClick={() => setTab('vision')} primary />
+                    <Btn label="Go to Vision Scan" icon="camera" onClick={() => setTab('vision')} primary />
                   </div>
                 </div>
               ) : (
@@ -561,9 +601,14 @@ export default function App() {
                   <div style={{ ...C.ch, flexDirection:'column', alignItems:'stretch', gap:12 }}>
                     <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:12 }}>
                       <div style={{ fontSize:14, fontWeight:600, letterSpacing:'-.01em' }}>재고 목록 <span style={{ color:'#666', fontWeight:400 }}>({filteredInv.length})</span></div>
-                      <input type="text" placeholder="Search items..." value={search}
-                        onChange={e => setSearch(e.target.value)}
-                        style={{ ...C.input, width:200, padding:'7px 12px', fontSize:12.5 }} />
+                      <div style={{ position:'relative', width:220 }}>
+                        <span style={{ position:'absolute', left:11, top:'50%', transform:'translateY(-50%)', color:'#6a6a6a', display:'inline-flex' }}>
+                          <Icon name="search" size={14} />
+                        </span>
+                        <input type="text" placeholder="Search items" value={search}
+                          onChange={e => setSearch(e.target.value)}
+                          style={{ ...C.input, width:'100%', padding:'7px 12px 7px 32px', fontSize:12.5 }} />
+                      </div>
                     </div>
                     <div style={{ display:'flex', gap:6, alignItems:'center', flexWrap:'wrap' }}>
                       {['All',...CATEGORIES].map(c => {
@@ -610,8 +655,8 @@ export default function App() {
                             ? <span style={C.tag(s.color, s.bg)}>{s.lbl}</span>
                             : <span style={C.tag('#7a7a7a','rgba(255,255,255,.04)')}>No par</span>}
                           {!item.sup && <span style={C.tag('#f5a623','rgba(245,166,35,.10)')}>No supplier</span>}
-                          <Btn label="Edit" onClick={() => setEditModal({ ...item })} sm />
-                          <Btn label="Delete" onClick={() => deleteItem(item.id)} sm />
+                          <Btn label="Edit" icon="edit" onClick={() => setEditModal({ ...item })} sm />
+                          <Btn label="" icon="trash" onClick={() => deleteItem(item.id)} sm />
                         </div>
                       </div>
                     )
@@ -627,13 +672,15 @@ export default function App() {
               <PageHeader title="Suppliers" sub="공급업체 정보를 관리하세요" />
 
               <div style={{ marginBottom:18 }}>
-                <Btn label="+ Add Supplier" onClick={() => setSupModal({ name:'', phone:'', email:'', leadTime:'' })} primary />
+                <Btn label="Add Supplier" icon="plus" onClick={() => setSupModal({ name:'', phone:'', email:'', leadTime:'' })} primary />
               </div>
 
               {suppliers.length === 0 ? (
                 <div style={C.card}>
-                  <div style={{ padding:'48px 24px', textAlign:'center' }}>
-                    <div style={{ width:48, height:48, margin:'0 auto 14px', borderRadius:14, background:'rgba(255,255,255,.04)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:22, opacity:.8 }}>🏪</div>
+                  <div style={{ padding:'56px 24px', textAlign:'center' }}>
+                    <div style={{ width:48, height:48, margin:'0 auto 14px', borderRadius:14, background:'rgba(255,255,255,.04)', display:'flex', alignItems:'center', justifyContent:'center', color:'#9a9a9a' }}>
+                      <Icon name="store" size={22} />
+                    </div>
                     <div style={{ fontSize:15, fontWeight:600, color:'#f4f2ee', marginBottom:6, letterSpacing:'-.01em' }}>No suppliers yet</div>
                     <div style={{ fontSize:12.5, color:'#8a8a8a' }}>Add suppliers to enable automatic order grouping</div>
                   </div>
@@ -653,7 +700,7 @@ export default function App() {
                           <div style={{ fontWeight:600, fontSize:14, letterSpacing:'-.005em', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{sup.name}</div>
                         </div>
                         <div style={{ display:'flex', gap:6 }}>
-                          <Btn label="Edit" onClick={() => setSupModal({ ...sup })} sm />
+                          <Btn label="Edit" icon="edit" onClick={() => setSupModal({ ...sup })} sm />
                         </div>
                       </div>
                       <div style={{ display:'grid', gap:6 }}>
@@ -692,16 +739,19 @@ export default function App() {
               </div>
 
               {noPar > 0 && <div style={C.alert('#f5a623','rgba(245,166,35,.08)','rgba(245,166,35,.20)')}>
+                <Icon name="alert" size={14} color="#f5a623" />
                 <span>{noPar}개 품목에 Par Level 미설정 → Inventory 탭에서 먼저 설정하세요</span>
               </div>}
 
               {!orders ? (
                 <div style={C.card}>
-                  <div style={{ padding:'52px 24px', textAlign:'center' }}>
-                    <div style={{ width:52, height:52, margin:'0 auto 16px', borderRadius:14, background:'rgba(62,207,142,.10)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:24 }}>📦</div>
+                  <div style={{ padding:'56px 24px', textAlign:'center' }}>
+                    <div style={{ width:52, height:52, margin:'0 auto 16px', borderRadius:14, background:'rgba(62,207,142,.10)', display:'flex', alignItems:'center', justifyContent:'center', color:'#3ecf8e' }}>
+                      <Icon name="package" size={24} />
+                    </div>
                     <div className="serif" style={{ fontSize:22, marginBottom:8, fontWeight:500 }}>발주서 자동 생성</div>
                     <div style={{ fontSize:12.5, color:'#8a8a8a', marginBottom:22, maxWidth:400, margin:'0 auto 22px' }}>Par level 미달 품목을 공급업체별로 자동 그룹핑합니다</div>
-                    <Btn label="Generate Orders" onClick={generateOrders} primary
+                    <Btn label="Generate Orders" icon="sparkle" onClick={generateOrders} primary
                       disabled={inventory.filter(i=>i.par>0).length===0} />
                   </div>
                 </div>
@@ -709,7 +759,7 @@ export default function App() {
                 <div>
                   <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
                     <div style={{ fontSize:12.5, color:'#8a8a8a' }}>{Object.keys(orders).length}개 발주서 생성됨</div>
-                    <Btn label="Reset" onClick={() => { setOrders(null); setSent({}) }} sm />
+                    <Btn label="Reset" icon="refresh" onClick={() => { setOrders(null); setSent({}) }} sm />
                   </div>
 
                   {Object.entries(orders).map(([supName, items]) => {
@@ -732,8 +782,8 @@ export default function App() {
                           <div style={{ display:'flex', gap:8, alignItems:'center' }}>
                             {supInfo?.leadTime && <span style={C.tag('#6ea8fe','rgba(110,168,254,.12)')}>{supInfo.leadTime}</span>}
                             {sentMap[supName]
-                              ? <span style={C.tag('#3ecf8e','rgba(62,207,142,.14)')}>✓ Sent</span>
-                              : <Btn label="Send Order" onClick={() => setSent(s=>({...s,[supName]:true}))} primary sm />}
+                              ? <span style={C.tag('#3ecf8e','rgba(62,207,142,.14)')}><Icon name="check" size={12} color="#3ecf8e" /> Sent</span>
+                              : <Btn label="Send Order" icon="send" onClick={() => setSent(s=>({...s,[supName]:true}))} primary sm />}
                           </div>
                         </div>
                         <div style={{ display:'grid', gridTemplateColumns:'1fr 90px 90px 100px', gap:12, padding:'9px 18px', fontSize:10.5, textTransform:'uppercase', letterSpacing:'.08em', color:'#6a6a6a', background:'rgba(255,255,255,.015)', fontWeight:600 }}>
@@ -781,7 +831,7 @@ export default function App() {
               <div style={{ fontSize:16, fontWeight:600, letterSpacing:'-.01em', display:'flex', alignItems:'center', gap:10 }}>
                 <span style={{ fontSize:20 }}>{editModal.icon}</span> {editModal.name}
               </div>
-              <button onClick={() => setEditModal(null)} style={{ background:'rgba(255,255,255,.04)', border:'1px solid rgba(255,255,255,.06)', color:'#9a9a9a', fontSize:14, cursor:'pointer', width:30, height:30, borderRadius:8, display:'flex', alignItems:'center', justifyContent:'center' }}>✕</button>
+              <button onClick={() => setEditModal(null)} style={{ background:'rgba(255,255,255,.04)', border:'1px solid rgba(255,255,255,.06)', color:'#9a9a9a', cursor:'pointer', width:30, height:30, borderRadius:8, display:'flex', alignItems:'center', justifyContent:'center' }}><Icon name="x" size={14} /></button>
             </div>
 
             <div style={{ padding:'22px 24px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:18 }}>
@@ -850,7 +900,7 @@ export default function App() {
 
             <div style={{ padding:'4px 24px 22px', display:'flex', gap:8, justifyContent:'flex-end' }}>
               <Btn label="Cancel" onClick={() => setEditModal(null)} />
-              <Btn label="Save to Airtable" primary onClick={async () => {
+              <Btn label="Save to Airtable" icon="check" primary onClick={async () => {
                 setSaving(true)
                 await saveItem(editModal.id, editModal)
                 setSaving(false)
@@ -891,11 +941,11 @@ export default function App() {
 
             <div style={{ padding:'4px 24px 22px', display:'flex', gap:8, justifyContent:'space-between' }}>
               <div>
-                {supModal.id && <Btn label="Delete" onClick={() => deleteSup(supModal.id)} color="#ef5a5a" />}
+                {supModal.id && <Btn label="Delete" icon="trash" onClick={() => deleteSup(supModal.id)} color="#ef5a5a" />}
               </div>
               <div style={{ display:'flex', gap:8 }}>
                 <Btn label="Cancel" onClick={() => setSupModal(null)} />
-                <Btn label="Save" primary onClick={() => saveSupplier(supModal)} disabled={!supModal.name} />
+                <Btn label="Save" icon="check" primary onClick={() => saveSupplier(supModal)} disabled={!supModal.name} />
               </div>
             </div>
           </div>
